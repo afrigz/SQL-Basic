@@ -1,0 +1,180 @@
+-- Digital Skola Batch 12 - Sesi 4 & 5 (2022-02-12)
+
+-- most basic syntax --> select, from, where
+
+-- SQL 1 - database manipulation
+
+-- create table
+create table batch_12.teman_roman
+(id int, nama varchar, birthday date);
+
+select *
+from batch_12.teman_roman;
+
+-- mengisi table yang sudah dibuat
+-- insert into
+
+-- langsung semua kolom
+insert into batch_12.teman_roman
+values (1, 'Andi', '1991-11-11'), (2, 'Budi', '11-11-1991');
+
+-- beberapa kolom saja
+insert into batch_12.teman_roman
+(id, nama) values (3, 'Cindy');
+
+-- update isi table
+-- update satu row
+update batch_12.teman_roman
+set birthday = '2001-11-11'
+where nama = 'Budi'; -- atau id = 1
+
+-- update dua atau lebih row
+update batch_12.teman_roman
+set birthday = '2002-11-11'
+where nama in ('Cindy','Andi');
+
+-- alter table
+-- add column
+alter table batch_12.teman_roman 
+add address varchar, 
+add occupation varchar;
+
+-- drop column
+alter table batch_12.teman_roman 
+drop column occupation;
+
+-- delete row
+delete from batch_12.teman_roman 
+where nama = 'Budi'; -- id = 2
+
+-- truncate table 
+truncate table batch_12.teman_roman;
+
+-- drop table
+drop table batch_12.teman_roman;
+
+
+-- SQL 2
+
+select *
+from datasource.employees;
+
+select *
+from datasource.employees
+where first_name like 'D%';
+-- David, Diana, Daniel
+
+select *
+from datasource.employees
+where first_name like '%d';
+where substring(a.trailer3,-8) in ('04970080')
+-- David, Gerald, Donald
+
+select *
+from datasource.employees
+where lower(first_name) like 'd%';
+-- David, Diana, Daniel
+
+select *
+from datasource.employees
+where lower(first_name) like '%o%';
+
+-- string
+select first_name, lower(first_name), upper(first_name)
+from datasource.employees;
+
+-- aggregate
+select 
+	min(salary),
+	max(salary),
+	avg(salary)
+from datasource.employees;
+
+-- grouping
+select 
+	job_id,
+	count(employee_id),
+	min(salary),
+	max(salary)
+from datasource.employees
+group by job_id;
+
+select 
+	department_id,
+	job_id,
+	count(employee_id),
+	min(salary),
+	max(salary)
+from datasource.employees
+group by department_id, job_id;
+
+--
+select 
+	job_id,
+	count(employee_id) as count_employee,
+	min(salary) as min_salary,
+	max(salary) as max_salary
+from datasource.employees
+group by job_id
+order by 1 desc; -- asc --> ascending, desc --> descending
+
+-- manipulasi string
+select
+	first_name,
+	last_name ,
+	concat(first_name,last_name) as name_1,
+	concat(first_name,' ',last_name) as name_2,
+	concat(lower(first_name),lower(last_name)) as name_3,
+	concat(lower(first_name),'_',lower(last_name)) as name_4,
+	concat(first_name,substring(last_name,1,1)) as name_5 --> substring(kolom, mulai di karakter keberapa, berapa karakter)
+from datasource.employees;	
+
+
+-- memberikan value berdasarkan kondisi/syarat value di kolom lain 
+select *,
+	(case when department_id = 90 then 'Risk'
+	when department_id  = 60 then 'HR' else null end) as department_name_test
+from datasource.employees;
+
+select *
+from datasource.departments;
+
+
+-- manipulasi date
+select 
+	to_char(current_timestamp, 'YYYY-MM-DD') as "Today",
+	(current_date + interval '1 day')::date as "Tomorrow",
+	(current_date - interval '1 day')::date as "Yesterday",
+	extract(month from current_date) as "This Month",
+	extract(month from current_date) as "This Month";
+	
+-- JOIN
+select
+	concat(first_name,' ',last_name) as full_name,
+	department_name,
+	datasource.employees.department_id 
+from 
+	datasource.employees
+	left join datasource.departments on datasource.employees.department_id = datasource.departments.department_id ;
+	
+select *
+from datasource.employees full outer join datasource.departments on datasource.employees.department_id = datasource.departments.department_id;
+
+select
+	datasource.employees.*, datasource.departments.department_name 
+from 
+	datasource.employees
+	left join datasource.departments on datasource.employees.department_id = datasource.departments.department_id ;
+	
+-- join 3 table
+select
+	concat(first_name,' ',last_name) as full_name,
+	department_name,
+	city ,
+	street_address ,
+	a.department_id ,
+	c.location_id 
+from 
+	datasource.employees a
+	left join datasource.departments b on a.department_id = b.department_id
+	left join datasource.locations c on b.location_id = c.location_id ;
